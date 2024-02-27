@@ -21,11 +21,11 @@
 
 class SignatureHelper {
 public:
-    static void GenerateSignature(const unsigned char* msg,
+    static void GenerateSignature(std::string& msg,
         size_t msgLen,
         std::string& signedMsg);
     
-    static bool VerifySignature(const unsigned char* msg,
+    static bool VerifySignature(std::string& msg,
         size_t msgLen,
         const std::string& signedMsg);
 

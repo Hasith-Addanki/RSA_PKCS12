@@ -3,8 +3,9 @@
 
 int main()
 {
-    const unsigned char msg[] = "Hello, world!";
-    size_t msgLen = strlen((const char*)msg);
+    //const unsigned char msg[] = "Hello, world!";
+    std::string msg = "Hello, world!";
+    size_t msgLen = msg.length();
 
     std::string signedMsg;
 
@@ -31,8 +32,9 @@ int main()
 
     std::cout << "Verifying the signature with altered msg: " << std::endl;
 
-    const unsigned char msg2[] = "HELLO, WORLD!";
-    size_t msgLen2 = strlen((const char*)msg2);
+    //const unsigned char msg2[] = "HELLO, WORLD!";
+    std::string msg2 = "HELLO, WORLD!";
+    size_t msgLen2 = msg2.length();
 
     std::cout << "\tAlterned msg: \n\t\t";
     for (int i = 0; i < msgLen2; i++)

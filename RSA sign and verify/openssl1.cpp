@@ -3,8 +3,9 @@
 
 #include "openssl1.h";
 
-void SignatureHelper::GenerateSignature(const unsigned char* msg, size_t msgLen, std::string& signedMsg)
+void SignatureHelper::GenerateSignature(std::string& msg, size_t msgLen, std::string& signedMsg)
 {
+    const unsigned char* msg_ch = (const unsigned char*) msg.c_str();
     EVP_PKEY* privateKey = GetPrivatePublicKeyFromPKCS12("private");
     if (privateKey == NULL) {
         std::cerr << "Failed to load private key" << std::endl;
@@ -16,7 +17,7 @@ void SignatureHelper::GenerateSignature(const unsigned char* msg, size_t msgLen,
     size_t signatureLen;
 
     // Call RSASign function
-    if (!RSASign(privateKey, msg, msgLen, &signature, &signatureLen)) {
+    if (!RSASign(privateKey, msg_ch, msgLen, &signature, &signatureLen)) {
         std::cerr << "Failed to create digital signature" << std::endl;
         //RSA_free(rsa); // Don't forget to free RSA object
         EVP_PKEY_free(privateKey);
@@ -29,8 +30,10 @@ void SignatureHelper::GenerateSignature(const unsigned char* msg, size_t msgLen,
     OPENSSL_free(signature);
 }
 
-bool SignatureHelper::VerifySignature(const unsigned char* msg, size_t msgLen, const std::string& signedMsg)
+bool SignatureHelper::VerifySignature(std::string& msg, size_t msgLen, const std::string& signedMsg)
 {
+    const unsigned char* msg_ch = (const unsigned char*)msg.c_str();
+
     EVP_PKEY* publicKey = GetPrivatePublicKeyFromPKCS12("public");
     if (publicKey == nullptr) {
         std::cerr << "Failed to load public key" << std::endl;
@@ -43,7 +46,7 @@ bool SignatureHelper::VerifySignature(const unsigned char* msg, size_t msgLen, c
     Base64Decode(signedMsg, &signature, &signatureLen);
 
     bool authentic = false;
-    if (!RSAVerifySignature(publicKey, signature, signatureLen, msg, msgLen, &authentic)) {
+    if (!RSAVerifySignature(publicKey, signature, signatureLen, msg_ch, msgLen, &authentic)) {
         std::cerr << "Failed to verify signature" << std::endl;
         EVP_PKEY_free(publicKey);
         return false;
@@ -72,6 +75,7 @@ void SignatureHelper::Base64Encode(const unsigned char* Buffer, size_t Length, s
     BUF_MEM* bufferPtr;
 
     b64 = BIO_new(BIO_f_base64());
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
     bio = BIO_new(BIO_s_mem());
     bio = BIO_push(b64, bio);
 
